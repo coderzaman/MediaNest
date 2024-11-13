@@ -8,8 +8,7 @@ from PostApp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include('LoginApp.urls')),
-    path('post/', include('PostApp.urls')),
-    path('', views.home, name="home")
+    path('', include('PostApp.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

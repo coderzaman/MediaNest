@@ -1,6 +1,6 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from .forms import CreateNewUser, AuthenticationForm, EditProfile
-from .models import UserProfile
+from .models import UserProfile, Follow
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
@@ -68,14 +68,15 @@ def user_profile(request):
             
             return redirect('LoginApp:profile')
 
-    user_post = User.objects.prefetch_related('post','user_profile').get(pk=request.user.pk)
+    user_data = User.objects.select_related('user_profile').prefetch_related('post').get(pk=request.user.pk)
+    user_posts = user_data.post.all()  # Retrieve all posts related to the user
+    user_profile = user_data.user_profile  # Access the user’s profile directly
 
-    print(user_post)
     
     context = {
         'form':form,
-        'user_details':user_details,
-        'user_post': user_post
+        'user_profile':user_profile,
+        'user_posts': user_posts
     }
     return render(request, 'LoginApp/user.html', context=context)
 
@@ -94,3 +95,36 @@ def edit_profile(request):
             return redirect("LoginApp:profile")
     
     return render(request, 'LoginApp/profile.html', context={'form':form})
+
+
+@login_required
+def other_users(request, username):
+    other_user = User.objects.get(username=username)
+
+    already_followed = Follow.objects.filter(follower=request.user, following=other_user)
+    
+    if other_user == request.user:
+        return redirect('LoginApp:profile')
+    
+    user_profile = UserProfile.objects.select_related('user').get(user__username=username)
+    return render(request, 'LoginApp/other_user.html', context={'user_profile': user_profile, 'already_followed':already_followed} )
+
+@login_required
+def follow(request, username):
+    following_user = User.objects.get(username=username)
+    follower_user = request.user
+    
+    already_followed = Follow.objects.filter(follower=follower_user, following= following_user)
+    
+    if not already_followed:
+        follow_user = Follow(follower=follower_user, following= following_user)
+        follow_user.save()
+    return redirect("LoginApp:user_profile", username)
+
+@login_required
+def un_follow(request, username):
+    following_user = User.objects.get(username=username)
+    follower_user = request.user
+    already_followed = Follow.objects.filter(follower=follower_user, following= following_user)
+    already_followed.delete()
+    return redirect("LoginApp:user_profile", username)

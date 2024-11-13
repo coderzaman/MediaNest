@@ -2,17 +2,22 @@
 {% load custom_tags %}
 {% load crispy_forms_tags %}
 {% block title %}
-  {{ user_profile.full_name }}(@{{ user.username }})
+  {{ user_profile.full_name }}(@{{ user_profile.user.username }})
 {% endblock %}
 {% block body %}
   <div class="container">
     <div class="row mt-5">
       <div class="col-4">
-        <img width="250px" height="250px" class="border border-4 border-success rounded-circle" src="/media/{{ user.user_profile.profile_pic|default_profile_pic }}" alt="User Profile Picture" />
+        <img width="250px" height="250px" class="border border-4 border-success rounded-circle" src="/media/{{user_profile.profile_pic|default_profile_pic }}" alt="User Profile Picture" />
       </div>
       <div class="col-6">
-        <h3>{{ user.username }}&nbsp; <a href="{% url 'LoginApp:edit_profile' %}" class="btn btn-success btn-sm">Edit Profile</a></h3>
-        <h6>{{ user_posts.count }} Post &nbsp;|&nbsp; {{ user.following.count }} Follower &nbsp;|&nbsp; {{ user.follower.count }} Following</h6>
+        {% if not already_followed %}
+            <h3>{{ user_profile.user.username }}&nbsp; <a href="{% url 'LoginApp:follow' username=user_profile.user.username %}" class="btn btn-success btn-sm">Follow</a></h3>
+        {% else %}
+            <h3>{{ user_profile.user.username }}&nbsp; <a href="{% url 'LoginApp:un_follow' username=user_profile.user.username %}" class="btn btn-success btn-sm">Unfollow</a></h3>
+        {% endif %}
+       
+        <h6>{{ user_profile.user.post.count }} Post &nbsp;|&nbsp; {{ user_profile.user.following.count }} Follower &nbsp;|&nbsp; {{ user_profile.user.follower.count }} Following</h6>
         <br />
         <h4>{{ user_profile.full_name }}</h4>
         <p>{{ user_profile.description }}</p>
@@ -21,15 +26,14 @@
           <a target="_blank" class="me-2 text-decoration-none" href="{{ user_profile.facebook }}"><i class="fa-brands fa-facebook"></i></a>
           <a target="_blank" class="text-dark text-decoration-none" href="{{ user_profile.x }}"><i class="fa-brands fa-square-x-twitter"></i></a>
         </p>
-        <br />
       </div>
       {% comment %} <hr class="border-2 border-success" /> {% endcomment %}
     </div>
   </div>
-<br>
+  <br />
   <div class="container">
     <div class="row">
-      {% for post in user_posts.all %}
+      {% for post in user_profile.user.post.all %}
         <div class="card col-3 p-0 rounded-0">
           {% if forloop.counter < 5 %}
             <img class="rounded-0" style="width: 100%;height: 100%;" src="/media/{{ post.image }}" class="card-img-top" alt="..." />
@@ -38,38 +42,13 @@
       {% endfor %}
     </div>
   </div>
+  <br>
   <hr />
-  <div class="container mt-4">
-    <div class="row">
-      <div class="col-7 m-auto">
-        <textarea type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" class="rounded rounded-2" style="width: 100%; height: 70px; resize: none;" name="" id=""></textarea>
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Create Post</h1>
-              </div>
-              <div class="modal-body m-0">
-                <form method="POST" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  {{ form|crispy }}
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Save changes</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <hr />
-
+  <br />
   <div class="container">
     <div class="row">
       <div class="col-6 m-auto">
-        {% for post in user_posts %}
+        {% for post in user_profile.user.post.all %}
           <div class="border border-2 mb-3">
             <div class="p-3 pb-0">
                 <h5 class="m-0"><b>{{ user_profile.full_name }}</b></h5>

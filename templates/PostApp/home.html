@@ -4,29 +4,75 @@
   MediaNest
 {% endblock %}
 {% block body %}
-  <div class="container mt-4">
-    <div class="row">
-      <div class="col-7 m-auto">
-        <textarea type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" class="rounded rounded-2" style="width: 100%; height: 70px; resize: none;" name="" id=""></textarea>
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Create Post</h1>
+  {% if results %}
+    <div class="container mt-5">
+      <div class="row">
+        {% for result in results %}
+          <div class="col-8 m-auto">
+        
+            <div class="row mb-2 p-2 border ">
+              <div class="col-1">
+                {% if result.profile_pic %}
+                  <img src="/media/{{ result.profile_pic }}" alt="" height="50px" width="50px" class="rounded-circle border border-2 border-success" />
+                {% else %}
+                  <img src="/media/default_profile.jpg" alt="" height="50px" width="50px" class="rounded-circle border border-2 border-success" />
+                {% endif %}
               </div>
-              <div class="modal-body m-0">
-                <form method="POST" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  {{form | crispy}}
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Save changes</button>
-                </form>
+              <div class="col-6">
+                   <p class="m-0 d-inline-block"><a href="{% url "LoginApp:user_profile" username=result.user.username %}" class="text-decoration-none text-success">@{{ result.user.username }}</a></p>
+                   <br>
+                   <p class="m-0  d-inline-block">{{result.full_name}}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-7 m-auto">
+          <textarea type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" class="rounded rounded-2" style="width: 100%; height: 70px; resize: none;" name="" id=""></textarea>
+          <!-- Modal -->
+          <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Create Post</h1>
+                </div>
+                <div class="modal-body m-0">
+                  <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{form | crispy}}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
         </div>
+       
       </div>
     </div>
-  </div>
+    <br>
+    <hr>
+    <br>
+    <div class="container">
+      <div class="row">
+        <div class="col-6 m-auto">
+          {% for post in posts %}
+            <div class="border border-2 mb-3">
+              <div class="p-3 pb-0">
+                  <h5 class="m-0"><b>{{ post.author.user_profile.full_name }}</b></h5>
+                  <p style="font-size: 12px; m-0">{{ post.upload_date }}</p>
+              </div>
+              <img class="rounded-0 border mb-2" style="width: 100%;height: 100%;" src="/media/{{ post.image }}" class="card-img-top" alt="..." />
+              <h6 class="m-0 mt-1 mb-3 ps-2">{{ post.caption }}</h6>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}

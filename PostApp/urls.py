@@ -7,3 +7,5 @@ app_name = 'PostApp'
 urlpatterns = [
    path('', views.home, name="home"),
 ]
+
+
