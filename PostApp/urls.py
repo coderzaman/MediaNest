@@ -6,6 +6,7 @@ app_name = 'PostApp'
 
 urlpatterns = [
    path('', views.home, name="home"),
+   path('liked/<pk>/', views.liked, name='liked'),
+   path('un-liked/<pk>/', views.un_liked, name='un_liked')
 ]
-
 

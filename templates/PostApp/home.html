@@ -69,6 +69,15 @@
               </div>
               <img class="rounded-0 border mb-2" style="width: 100%;height: 100%;" src="/media/{{ post.image }}" class="card-img-top" alt="..." />
               <h6 class="m-0 mt-1 mb-3 ps-2">{{ post.caption }}</h6>
+              <div class="">
+                <hr class="mb-2 opacity-10">
+                {% if post.pk not in like_post_list %}
+                  <p class="text-center m-0"><a href="{% url "PostApp:liked" pk=post.pk %}"><i class="fa-regular fa-heart mb-2 fs-4"></i></a></p>
+                {% else %}
+                  <p class="text-center m-0"><a href="{% url "PostApp:un_liked" pk=post.pk %}"><i class="fa-solid fa-heart fs-4 mb-1 text-danger"></i></a></p>
+                {% endif %}
+                <p class="text-center m-0 mb-2" style="font-size: 12px;">{{post.liked_post.count}} Like</p>
+              </div>
             </div>
           {% endfor %}
         </div>
